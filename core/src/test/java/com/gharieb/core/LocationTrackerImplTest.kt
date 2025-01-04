@@ -44,9 +44,7 @@ class LocationTrackerImplTest {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.initMocks(this) // Initialize mocks
-
-        // Mock application system service for location manager
+        MockitoAnnotations.initMocks(this)
         Mockito.`when`(mockApplication.getSystemService(Context.LOCATION_SERVICE))
             .thenReturn(mockLocationManager)
 
@@ -55,7 +53,6 @@ class LocationTrackerImplTest {
 
     @Test
     fun `return null when permissions are not granted`() = runTest {
-        // Mock permission denial
         Mockito.`when`(
             ContextCompat.checkSelfPermission(
                 mockApplication,
@@ -69,7 +66,6 @@ class LocationTrackerImplTest {
 
     @Test
     fun `return null when GPS is disabled`() = runTest {
-        // Mock GPS provider being disabled
         Mockito.`when`(mockLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
             .thenReturn(false)
 
@@ -79,7 +75,6 @@ class LocationTrackerImplTest {
 
     @Test
     fun `return location when permissions and GPS are enabled`() = runTest {
-        // Mock permission granted
         val mockLocation = Location(LocationManager.GPS_PROVIDER)
         Mockito.`when`(
             ContextCompat.checkSelfPermission(
@@ -88,11 +83,9 @@ class LocationTrackerImplTest {
             )
         ).thenReturn(PackageManager.PERMISSION_GRANTED)
 
-        // Mock GPS provider enabled
         Mockito.`when`(mockLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
             .thenReturn(true)
 
-        // Mock successful location retrieval
         Mockito.`when`(mockLocationClient.lastLocation)
             .thenReturn(Tasks.forResult(mockLocation))
 
@@ -103,7 +96,6 @@ class LocationTrackerImplTest {
 
     @Test
     fun `return null when location retrieval fails`() = runTest {
-        // Mock location retrieval failure
         Mockito.`when`(mockLocationClient.lastLocation)
             .thenReturn(Tasks.forException(Exception("Error")))
 

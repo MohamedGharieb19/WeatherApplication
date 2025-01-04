@@ -49,7 +49,7 @@ class ForecastViewModelTest {
             locationTrackerUseCase = locationTrackerUseCase,
             getForecastWeatherUseCase = getForecastWeatherDataUseCase,
             savedStateHandle = savedStateHandle,
-            ioDispatcher = testDispatcher // Inject test dispatcher
+            ioDispatcher = testDispatcher
         )
     }
 
@@ -71,7 +71,7 @@ class ForecastViewModelTest {
 
         // Act
         viewModel.handleIntent(ForecastIntent.LoadCurrentWeather(days = "3"))
-        advanceUntilIdle() // Process all pending coroutines
+        advanceUntilIdle()
 
         // Assert
         assertTrue(viewModel.state.isLoading.not())
@@ -88,7 +88,7 @@ class ForecastViewModelTest {
 
         // Act
         viewModel.handleIntent(ForecastIntent.LoadCurrentWeather(days = "3"))
-        advanceUntilIdle() // Process all pending coroutines
+        advanceUntilIdle()
 
         // Assert
         assertTrue(viewModel.state.isLoading.not())
