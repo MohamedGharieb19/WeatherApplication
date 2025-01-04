@@ -6,12 +6,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gharieb.core.di.IoDispatcher
 import com.gharieb.core.domain.use_case.location.GetLocationTrackerUseCase
 import com.gharieb.core.utils.Resource
 import com.gharieb.forecast.domain.entity.Forecast
 import com.gharieb.forecast.domain.use_case.GetForecastWeatherDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +23,7 @@ class ForecastViewModel @Inject constructor(
     private val locationTrackerUseCase: GetLocationTrackerUseCase,
     private val getForecastWeatherUseCase: GetForecastWeatherDataUseCase,
     private val savedStateHandle: SavedStateHandle,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     var state by mutableStateOf(ForecastState())
@@ -42,17 +47,19 @@ class ForecastViewModel @Inject constructor(
                 isLoading = true,
                 errorMessage = null
             )
-            val result: Resource<Forecast> = state.cityNameBySearch?.let { nameCity ->
-                getForecastWeatherUseCase.invoke(city = nameCity, days = days)
-            } ?: run {
-                locationTrackerUseCase.invoke()?.let { currentLocation ->
-                    getForecastWeatherUseCase.invoke(
-                        lat = currentLocation.latitude,
-                        long = currentLocation.longitude,
-                        days = days
-                    )
+            val result: Resource<Forecast> = withContext(ioDispatcher) {
+                state.cityNameBySearch?.let { nameCity ->
+                    getForecastWeatherUseCase.invoke(city = nameCity, days = days)
                 } ?: run {
-                    getForecastWeatherUseCase.invoke(days = days)
+                    locationTrackerUseCase.invoke()?.let { currentLocation ->
+                        getForecastWeatherUseCase.invoke(
+                            lat = currentLocation.latitude,
+                            long = currentLocation.longitude,
+                            days = days
+                        )
+                    } ?: run {
+                        getForecastWeatherUseCase.invoke(days = days)
+                    }
                 }
             }
 
