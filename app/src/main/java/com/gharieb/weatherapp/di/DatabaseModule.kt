@@ -2,7 +2,7 @@ package com.gharieb.weatherapp.di
 
 import android.app.Application
 import androidx.room.Room
-import com.gharieb.weather.room.WeatherDatabase
+import com.gharieb.weather.data.source.local.WeatherDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

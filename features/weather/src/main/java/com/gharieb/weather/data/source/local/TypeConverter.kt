@@ -1,4 +1,4 @@
-package com.gharieb.weather.room
+package com.gharieb.weather.data.source.local
 
 import androidx.room.TypeConverter
 import com.gharieb.core.domain.entity.Current

@@ -1,7 +1,7 @@
 package com.gharieb.weather.di
 
 import com.gharieb.weather.data.source.local.WeatherDao
-import com.gharieb.weather.room.WeatherDatabase
+import com.gharieb.weather.data.source.local.WeatherDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

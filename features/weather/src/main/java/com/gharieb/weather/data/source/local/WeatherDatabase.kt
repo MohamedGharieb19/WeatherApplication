@@ -1,9 +1,8 @@
-package com.gharieb.weather.room
+package com.gharieb.weather.data.source.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.gharieb.weather.data.source.local.WeatherDao
 import com.gharieb.weather.domain.entity.Weather
 
 
