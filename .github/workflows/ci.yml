@@ -31,6 +31,8 @@ jobs:
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
+    env:
+      TZ: UTC
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
