@@ -46,13 +46,18 @@ fun CurrentWeatherScreen(navHostController: NavHostController, contentPadding: P
     ) { viewModel.currentWeatherInfo() }
 
     LaunchedEffect(Unit) {
-        permissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+        if (viewModel.hasSavedWeather()){
+            viewModel.currentWeatherInfo()
+        }else {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
             )
-        )
+        }
     }
+
 
     Scaffold(
         backgroundColor = MaterialTheme.colors.primaryVariant,
@@ -109,7 +114,7 @@ fun CurrentWeatherScreen(navHostController: NavHostController, contentPadding: P
                     text = error,
                     color = Color.Red,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 16.dp)
                 )
             }
         }

@@ -21,42 +21,52 @@ class LocationTrackerImpl @Inject constructor(
 ): ILocationTracker {
 
     override suspend fun getCurrentLocation(): Location? {
-        val hasAccessFineLocationPermission = ContextCompat.checkSelfPermission(
-            application,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        val hasAccessCoarseLocationPermission = ContextCompat.checkSelfPermission(
-            application,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        val locationManager = application.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        if(!hasAccessCoarseLocationPermission || !hasAccessFineLocationPermission || !isGpsEnabled) {
+        if (!hasLocationPermissions() || !isGpsEnabled()) {
             return null
         }
 
-        return suspendCancellableCoroutine { cont ->
-            locationClient.lastLocation.apply {
-                if(isComplete) {
-                    if(isSuccessful) {
-                        cont.resume(result)
-                    } else {
+        return try {
+            suspendCancellableCoroutine { cont ->
+                locationClient.lastLocation.apply {
+                    if(isComplete) {
+                        if(isSuccessful) {
+                            cont.resume(result)
+                        } else {
+                            cont.resume(null)
+                        }
+                        return@suspendCancellableCoroutine
+                    }
+                    addOnSuccessListener {
+                        cont.resume(it)
+                    }
+                    addOnFailureListener {
                         cont.resume(null)
                     }
-                    return@suspendCancellableCoroutine
-                }
-                addOnSuccessListener {
-                    cont.resume(it)
-                }
-                addOnFailureListener {
-                    cont.resume(null)
-                }
-                addOnCanceledListener {
-                    cont.cancel()
+                    addOnCanceledListener {
+                        cont.cancel()
+                    }
                 }
             }
+        }catch (e: SecurityException) {
+            null
         }
+    }
+
+    private fun hasLocationPermissions(): Boolean {
+        val fineLocationPermission = ContextCompat.checkSelfPermission(
+            application,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseLocationPermission = ContextCompat.checkSelfPermission(
+            application,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return fineLocationPermission && coarseLocationPermission
+    }
+
+    private fun isGpsEnabled(): Boolean {
+        val locationManager = application.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+        return locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) == true ||
+                locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) == true
     }
 }
