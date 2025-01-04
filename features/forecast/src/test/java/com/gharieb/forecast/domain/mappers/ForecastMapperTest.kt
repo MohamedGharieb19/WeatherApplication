@@ -18,6 +18,7 @@ import com.gharieb.forecast.domain.mapper.toModel
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
+
 class ForecastMapperTest {
 
     @Test
@@ -51,7 +52,7 @@ class ForecastMapperTest {
         // Assert
         val expected = Forecast(
             current = Current(
-                lastUpdated = "Today: 02:00 pm",
+                lastUpdated = "Today: 02:00 PM",
                 isDay = true,
                 temperature = "25.0°C",
                 condition = Condition(
@@ -70,7 +71,7 @@ class ForecastMapperTest {
                 forecastDayList = listOf(
                     ForecastDayItem(
                         date = "Sunday",
-                        isToday = false,
+                        isToday = true,
                         day = Day(
                             averageTemperature = "25.0°C",
                             condition = Condition(

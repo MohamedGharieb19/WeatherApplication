@@ -10,7 +10,7 @@ import com.gharieb.forecast.domain.entity.Forecast
 import com.gharieb.forecast.domain.entity.ForecastDayItem
 import com.gharieb.forecast.domain.entity.ForecastList
 import com.gharieb.weather_utils.DateFormatter.formatDateToDayOrToday
-import com.gharieb.weather_utils.DateUtils.isToday
+import com.gharieb.weather_utils.DateFormatter.isToday
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -33,9 +33,11 @@ fun ForecastDayItemDTO.toModel(): ForecastDayItem {
     val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     inputFormat.timeZone = TimeZone.getDefault()
 
+    val dateTimestamp = date?.let { inputFormat.parse(it) }
+
     return ForecastDayItem(
         date = date?.let { formatDateToDayOrToday(it) },
-        isToday = date?.let { isToday(it, inputFormat) } ?: false,
+        isToday = dateTimestamp?.let { isToday(it) } ?: false,
         day = day?.toModel()
     )
 }

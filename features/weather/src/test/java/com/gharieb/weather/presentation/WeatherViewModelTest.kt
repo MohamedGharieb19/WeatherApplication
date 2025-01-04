@@ -147,7 +147,7 @@ class WeatherViewModelTest {
 
 val weather = Weather(
     current = Current(
-        lastUpdated = "Today: 02:00 pm", // Adjust based on `formatDateToToday` function from myLibrary com.github.MohamedGharieb19:WeatherUtilsLibrary:1.0.1
+        lastUpdated = "Today: 02:00 PM", // Adjust based on `formatDateToToday` function from myLibrary com.github.MohamedGharieb19:WeatherUtilsLibrary:1.0.3
         isDay = true,
         temperature = "25.0°C",
         condition = Condition(
