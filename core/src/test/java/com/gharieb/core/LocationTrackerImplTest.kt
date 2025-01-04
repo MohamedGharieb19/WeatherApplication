@@ -21,6 +21,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
+import org.mockito.junit.MockitoJUnitRunner
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -43,8 +44,7 @@ class LocationTrackerImplTest {
 
     @Before
     fun setUp() {
-        MockitoAnnotations.openMocks(this)
-
+        MockitoAnnotations.initMocks(this)
         Mockito.`when`(mockApplication.getSystemService(Context.LOCATION_SERVICE))
             .thenReturn(mockLocationManager)
 
