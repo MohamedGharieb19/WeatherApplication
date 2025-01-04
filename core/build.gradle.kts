@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.gharieb.core"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
@@ -77,4 +77,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(libs.weatherutilslibrary)
+
+    testImplementation (libs.robolectric)
+    testImplementation (libs.mockito.core)
+    testImplementation (libs.mockito.inline)
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation ("androidx.arch.core:core-testing:2.1.0")
 }

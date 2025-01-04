@@ -8,6 +8,8 @@ import com.gharieb.weather.domain.repository.IWeatherRepository
 import com.gharieb.weather.domain.repository.local.IWeatherLocal
 import com.gharieb.weather.domain.repository.remote.IWeatherRemote
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class WeatherRepositoryImpl @Inject constructor(
@@ -18,16 +20,26 @@ class WeatherRepositoryImpl @Inject constructor(
 ): IWeatherRepository {
 
     override suspend fun getWeather(lat: Double?, long: Double?, city: String?): Resource<Weather> {
-        return city?.let {
+        return if (!city.isNullOrEmpty()) {
+            // Fetch weather by city
             remote.getCurrentWeatherData(city = city).also { weather ->
-                weather.data?.let { it1 -> local.saveWeather(it1) }
+                weather.data?.let { weatherData ->
+                    withContext(Dispatchers.IO) {
+                        local.saveWeather(weatherData)
+                    }
+                }
             }
-        }?:run {
-            if (sharedPreferencesHelper.getHasUserSearchedCity(context)){
-                local.getSavedWeather()
+        } else {
+            if (sharedPreferencesHelper.getHasUserSearchedCity(context)) {
+                // Fetch saved weather if it exists
+                withContext(Dispatchers.IO) {
+                    local.getSavedWeather()
+                }
             } else {
+                // Fetch weather by location
                 remote.getCurrentWeatherData(lat = lat, long = long)
             }
         }
     }
+
 }

@@ -8,6 +8,9 @@ lifecycleRuntimeKtx = "2.6.2"
 activityCompose = "1.8.0"
 hiltAndroid = "2.50"
 hiltNavigationCompose = "1.0.0"
+mockitoCore = "4.11.0"
+mockitoInline = "4.11.0"
+robolectric = "4.10"
 room = "2.5.2"
 coroutines = "1.6.4"
 gson = "2.10.1"
@@ -40,6 +43,9 @@ hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-p
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hiltAndroid" }
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }

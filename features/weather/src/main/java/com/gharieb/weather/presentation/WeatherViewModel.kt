@@ -13,9 +13,7 @@ import com.gharieb.weather.domain.entity.Weather
 import com.gharieb.weather.domain.use_case.GetWeatherUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,7 +25,6 @@ class WeatherViewModel @Inject constructor(
 ) : ViewModel() {
 
     var state by mutableStateOf(WeatherState())
-        private set
 
     fun currentWeatherInfo(city: String? = null) {
         viewModelScope.launch {
@@ -36,53 +33,56 @@ class WeatherViewModel @Inject constructor(
                 errorMessage = null
             )
 
-            val result: Resource<Weather> = city?.let { nameCity ->
-                withContext(Dispatchers.IO) {
-                    getWeatherUseCase.invoke(city = nameCity)
-                }
-            } ?: run {
-                locationTrackerUseCase.invoke()?.let { currentLocation ->
-                    withContext(Dispatchers.IO) {
+            val result: Resource<Weather> = if (!city.isNullOrEmpty()) {
+                // Search by city name
+                getWeatherUseCase.invoke(city = city)
+            } else {
+                // Check first is there is saved weather from search by city if not get location
+                if (hasSavedWeather()) {
+                    getWeatherUseCase.invoke()
+                } else {
+                    locationTrackerUseCase.invoke()?.let { currentLocation ->
                         getWeatherUseCase.invoke(
                             lat = currentLocation.latitude,
                             long = currentLocation.longitude
                         )
                     }
+                        ?: Resource.Error("Failed to retrieve location. Please enable location services or search by city name")
+                }
+
+            }
+            handleResult(result, city)
+        }
+    }
+
+    private fun handleResult(result: Resource<Weather>, city: String?) {
+        when (result) {
+            is Resource.Success -> {
+                city?.let {
+                    // To pass it for Forecast days weather while navigate to Forecast Screen
+                    // to prevent passing different value after getting city by search
+                    saveSearched(city = city)
+                    state = state.copy(
+                        cityNameBySearch = city,
+                        weatherInfo = result.data,
+                        isLoading = false,
+                        errorMessage = null
+                    )
                 } ?: run {
-                    withContext(Dispatchers.IO) {
-                        getWeatherUseCase.invoke()
-                    }
+                    state = state.copy(
+                        weatherInfo = result.data,
+                        isLoading = false,
+                        errorMessage = null
+                    )
                 }
             }
 
-            when (result) {
-                is Resource.Success -> {
-                    city?.let {
-                        // To pass it for Forecast days weather while navigate to Forecast Screen
-                        // to prevent passing different value after getting city by search
-                        saveSearched(city = city)
-                        state = state.copy(
-                            cityNameBySearch = city,
-                            weatherInfo = result.data,
-                            isLoading = false,
-                            errorMessage = null
-                        )
-                    } ?: run {
-                        state = state.copy(
-                            weatherInfo = result.data,
-                            isLoading = false,
-                            errorMessage = null
-                        )
-                    }
-                }
-
-                is Resource.Error -> {
-                    state = state.copy(
-                        weatherInfo = null,
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
-                }
+            is Resource.Error -> {
+                state = state.copy(
+                    weatherInfo = null,
+                    isLoading = false,
+                    errorMessage = result.message
+                )
             }
         }
     }
@@ -92,10 +92,13 @@ class WeatherViewModel @Inject constructor(
         sharedPreferencesHelper.setSearchedCityName(context = context, cityName = city)
     }
 
+    fun hasSavedWeather(): Boolean {
+        return sharedPreferencesHelper.getHasUserSearchedCity(context)
+    }
+
     fun resetCity() {
         state = state.copy(
             cityNameBySearch = null
         )
     }
-
 }
